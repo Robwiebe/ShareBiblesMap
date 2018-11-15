@@ -9,10 +9,10 @@ import axios from 'axios';
 class LogInContainer extends Component {
   state = {
     regionalKeys: [],
-    selectedRegion: 'MEX-SIN',
-    // selectedRegion: 'USA-CAL-Z06',
-    pins: [0],
-    indexNumber: 0
+    // selectedRegion: 'MEX-SIN',
+    selectedRegion: 'USA-CAL-Z06',
+    pins: [],
+    indexNumber: 1
   }
   handleSignUp = async event => {
     event.preventDefault();
@@ -47,17 +47,28 @@ class LogInContainer extends Component {
       .catch(error => console.log(error))
   }
 
-  getPinsFromRegion = () => {
-    const index = this.state.indexNumber
-    axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[index]}.json?auth=${this.state.token}`)
+  getPinsFromRegion = async () => {
+
+    for (let i = 0; i < this.state.regionalKeys.length; i++) {
+      await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[i]}.json?auth=${this.state.token}`)
       .then(response => {
         this.state.pins.push(response.data)
-        if (this.state.indexNumber < this.state.regionalKeys.length) {
-        this.setState({indexNumber: index + 1})}
-        console.log(this.state)
       })
       .catch(error => console.log(error))
-  }
+    }
+    console.log(this.state.pins)
+
+  //   if (this.state.indexNumber <= this.state.regionalKeys.length) {
+  //   await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[index]}.json?auth=${this.state.token}`)
+  //     .then(response => {
+  //       this.state.pins.push(response.data)
+
+  //       console.log(this.state)
+  //     })
+  //     .catch(error => console.log(error))
+  //     if (this.state.indexNumber < this.state.regionalKeys.length) {this.setState({indexNumber: index + 1})}
+  // }
+}
 
   render() {
     return (
@@ -68,11 +79,13 @@ class LogInContainer extends Component {
         <hr />
         <button onClick={this.getPinsFromRegion}>GET REGIONAL PINS</button>  
         <hr />
-        <h2>Showing {this.state.indexNumber} of {this.state.regionalKeys.length} locations</h2>
+        <h2>Showing {this.state.regionalKeys.length} locations</h2>
         <table>
           <caption>Table of pin data in region</caption>
-          <thead> <tr> <th>Key</th> <th>Longitude</th> <th>Latitude</th> <th>Status</th> </tr> </thead>
-          {this.state.pins.map(pin => <tr> <th>{pin.key}</th> <th>{pin.longitude}</th> <th>{pin.latitude}</th> <th>{pin.status}</th> </tr>)}
+          <thead><tr><th>Key,</th><th>Longitude,</th><th>Latitude,</th><th>Status,</th></tr></thead><br />
+          <tbody>
+            {(this.state.pins) ? this.state.pins.map(pin => <tr><td>{pin.key},</td><td>{pin.longitude},</td><td>{pin.latitude},</td><td>{pin.status},</td></tr>) : null}
+          </tbody>
         </table>
       </div>
     );
