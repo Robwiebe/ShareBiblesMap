@@ -3,16 +3,15 @@ import LogInView from "./LogInView";
 import { withRouter } from "react-router";
 import app from "../base";
 import axios from 'axios';
-
-
+import Table from '../components/Table'
 
 class LogInContainer extends Component {
   state = {
     regionalKeys: [],
     // selectedRegion: 'MEX-SIN',
-    selectedRegion: 'USA-CAL-Z06',
+    selectedRegion: 'MNG',
+    // selectedRegion: 'USA-CAL-Z06',
     pins: [],
-    indexNumber: 1
   }
   handleSignUp = async event => {
     event.preventDefault();
@@ -48,26 +47,15 @@ class LogInContainer extends Component {
   }
 
   getPinsFromRegion = async () => {
-
+    const pinsArray = [];
     for (let i = 0; i < this.state.regionalKeys.length; i++) {
       await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[i]}.json?auth=${this.state.token}`)
       .then(response => {
-        this.state.pins.push(response.data)
+        pinsArray.push(response.data)
       })
       .catch(error => console.log(error))
     }
-    console.log(this.state.pins)
-
-  //   if (this.state.indexNumber <= this.state.regionalKeys.length) {
-  //   await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[index]}.json?auth=${this.state.token}`)
-  //     .then(response => {
-  //       this.state.pins.push(response.data)
-
-  //       console.log(this.state)
-  //     })
-  //     .catch(error => console.log(error))
-  //     if (this.state.indexNumber < this.state.regionalKeys.length) {this.setState({indexNumber: index + 1})}
-  // }
+    this.setState({pins: [...pinsArray]})
 }
 
   render() {
@@ -80,13 +68,7 @@ class LogInContainer extends Component {
         <button onClick={this.getPinsFromRegion}>GET REGIONAL PINS</button>  
         <hr />
         <h2>Showing {this.state.regionalKeys.length} locations</h2>
-        <table>
-          <caption>Table of pin data in region</caption>
-          <thead><tr><th>Key,</th><th>Longitude,</th><th>Latitude,</th><th>Status,</th></tr></thead><br />
-          <tbody>
-            {(this.state.pins) ? this.state.pins.map(pin => <tr><td>{pin.key},</td><td>{pin.longitude},</td><td>{pin.latitude},</td><td>{pin.status},</td></tr>) : null}
-          </tbody>
-        </table>
+        <Table pins={this.state.pins} />
       </div>
     );
   }
