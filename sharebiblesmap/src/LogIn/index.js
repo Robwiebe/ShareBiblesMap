@@ -9,8 +9,8 @@ class LogInContainer extends Component {
   state = {
     regionalKeys: [],
     // selectedRegion: 'MEX-SIN',
-    selectedRegion: 'MNG',
-    // selectedRegion: 'USA-CAL-Z06',
+    // selectedRegion: 'MNG',
+    selectedRegion: 'USA-CAL-Z06',
     pins: [],
   }
   handleSignUp = async event => {
@@ -25,6 +25,7 @@ class LogInContainer extends Component {
             localStorage.setItem("savedToken", token);
             console.log("I logged in successfully", token) // store the token
           });
+
         })
     } catch (error) {
       alert(error);
@@ -47,15 +48,34 @@ class LogInContainer extends Component {
   }
 
   getPinsFromRegion = async () => {
-    const pinsArray = [];
-    for (let i = 0; i < this.state.regionalKeys.length; i++) {
-      await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[i]}.json?auth=${this.state.token}`)
+    const regionalPins = [];
+    await axios.get(`https://sharebibles.firebaseio.com/locations.json?auth=${this.state.token}`)
       .then(response => {
-        pinsArray.push(response.data)
+        const globalPinsArray = Object.entries(response.data);
+        for (let i = 0; i < globalPinsArray.length; i++) {
+          if (globalPinsArray[i][1].regionKey === this.state.selectedRegion) {
+            regionalPins.push(globalPinsArray[i][1])
+          }
+        }
+        this.setState({pins: regionalPins})
       })
-      .catch(error => console.log(error))
-    }
-    this.setState({pins: [...pinsArray]})
+      .catch(error => console.log(error));
+      console.log(this.state)
+    // for (let i = 0; i < this.state.regionalKeys.length; i++) {
+    //   const regionalPin = allPins.filter(pin => pin.key === this.state.regionalKeys[i]);
+    //   regionalPins.push(regionalPin);
+    // }
+
+    // for (let i = 0; i < this.state.regionalKeys.length; i++) {
+    //   // await axios.get(`https://sharebibles.firebaseio.com/locations/${this.state.regionalKeys[i]}.json?auth=${this.state.token}`)
+    //   await axios.get(`https://sharebibles.firebaseio.com/locations.json?auth=${this.state.token}`)
+    //   .then(response => {
+    //     // console.log(response.data)
+    //     pinsArray.push(response.data)
+    //   })
+    //   .catch(error => console.log(error))
+    // }
+    // this.setState({pins: [...regionalPins]})
 }
 
   render() {
