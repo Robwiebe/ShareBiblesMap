@@ -14,8 +14,12 @@ exports.rob = functions.https.onRequest((request, response) => {
                 message: "method not permitted"
             })
         }
-        response.status(200).json({
-            message: 'It worked!'
-        });
+        
+        return admin.database().ref(`geofireRegion/${request.body.region}`)
+                .once('value').then(snapshot => {
+                    response.status(200).json({
+                        region: snapshot.val()
+                    });
+                })
     });
 });
