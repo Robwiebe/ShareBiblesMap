@@ -58,6 +58,24 @@ class LogInContainer extends Component {
       .catch(error => console.log(error))
   }
 
+  getAllPins = () => {
+    console.log("getting all pins")
+    const token = localStorage.getItem('savedToken')
+    const regionalPins = [];
+    axios.get(`https://sharebibles.firebaseio.com/locations.json?auth=${token}`)
+      .then(response => {
+        const globalPinsArray = Object.entries(response.data);
+        for (let i = 0; i < globalPinsArray.length; i++) {
+          // if (globalPinsArray[i][1].regionKey === this.state.selectedRegion) {
+            regionalPins.push(globalPinsArray[i][1])
+          // }
+        }
+        this.setState({pins: regionalPins})
+        console.log("getting all pins")
+      })
+      .catch(error => console.log(error))
+  }
+
   getPinsFromRegion = async () => {
     const regionalPins = [];
     await axios.get(`https://sharebibles.firebaseio.com/locations.json?auth=${this.state.token}`)
@@ -90,6 +108,8 @@ class LogInContainer extends Component {
         <button onClick={() => this.getRegionalKeys(this.state.selectedRegion)}>GET REGIONAL KEYS</button>  
         <hr />
         <button onClick={this.getPinsFromRegion}>GET REGIONAL PINS</button>  
+        <hr />
+        <button onClick={this.getAllPins}>GET ALL PINS</button>  
         <hr />
         <button onClick={this.useCloudFunction}>TRY CLOUD FUNCTION</button>  
         <hr />
